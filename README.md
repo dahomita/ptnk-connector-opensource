@@ -75,7 +75,17 @@ npm install
    - `CLOUDINARY_API_SECRET` — from Cloudinary dashboard
    - `DEFAULT_IMAGE_URL` — a fallback Cloudinary image URL used when a member submits without a photo
 
-### 4. Configure environment
+### 4. Set up Upstash Redis (rate limiting)
+
+The submission forms are rate-limited via [Upstash](https://upstash.com) Redis. Without this configured, the Edge Functions will reject all requests.
+
+1. Create a free account at [upstash.com](https://upstash.com).
+2. Create a new Redis database.
+3. Add the following to **Supabase Dashboard → Project Settings → Edge Functions → Secrets**:
+   - `UPSTASH_REDIS_REST_URL` — from the Upstash database page
+   - `UPSTASH_REDIS_REST_TOKEN` — from the Upstash database page
+
+### 5. Configure environment
 
 ```bash
 cp .env.example .env
@@ -88,7 +98,7 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ```
 
-### 5. Run locally
+### 6. Run locally
 
 ```bash
 npm run dev
