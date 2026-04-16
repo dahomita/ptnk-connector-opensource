@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { supabase } from './supabase'
 import SubmitForm from './components/SubmitForm'
@@ -8,10 +8,6 @@ import type { Post } from './types'
 
 const SUBMISSIONS_OPEN = true
 
-const LIEN_KET = [
-  { label: 'lehongphong.org', href: 'https://lehongphong.org/' },
-  { label: 'Diễn đàn', href: 'https://forum.lehongphong.org/' },
-]
 
 type Page = 'gallery' | 'submit' | 'update'
 
@@ -19,21 +15,7 @@ export default function App() {
   const [page, setPage] = useState<Page>('gallery')
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [linksOpen, setLinksOpen] = useState(false)
-  const [mobileLinksOpen, setMobileLinksOpen] = useState(false)
-  const desktopRef = useRef<HTMLDivElement>(null)
-  const mobileRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (desktopRef.current && !desktopRef.current.contains(e.target as Node)) setLinksOpen(false)
-      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileLinksOpen(false)
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [])
-
-  async function fetchPosts() {
+async function fetchPosts() {
     setLoading(true)
     const { data, error } = await supabase
       .from('posts')
@@ -72,23 +54,6 @@ export default function App() {
             <button className={page === 'update' ? 'nav-btn active' : 'nav-btn'} onClick={() => setPage('update')}>
               Chỉnh sửa
             </button>
-            <div className="nav-dropdown" ref={desktopRef}>
-              <button className="nav-btn nav-dropdown-trigger" onClick={() => setLinksOpen(o => !o)}>
-                Liên kết
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style={{ marginLeft: 4, opacity: 0.6, transition: 'transform 0.15s', transform: linksOpen ? 'rotate(180deg)' : 'none' }}>
-                  <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z" clipRule="evenodd"/>
-                </svg>
-              </button>
-              {linksOpen && (
-                <div className="nav-dropdown-menu">
-                  {LIEN_KET.map(({ label, href }) => (
-                    <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="nav-dropdown-item" onClick={() => setLinksOpen(false)}>
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
           </nav>
         </div>
       </header>
@@ -131,24 +96,6 @@ export default function App() {
           </svg>
           <span>Chỉnh sửa</span>
         </button>
-        <div className="mobile-nav-dropdown" ref={mobileRef}>
-          <button className="mobile-nav-btn" onClick={() => setMobileLinksOpen(o => !o)}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-              <path d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Z"/>
-              <path d="M3.75 6.75a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v6.75a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V9.75a1.5 1.5 0 0 1 1.5-1.5H10.5a.75.75 0 0 0 0-1.5H3.75Z"/>
-            </svg>
-            <span>Liên kết</span>
-          </button>
-          {mobileLinksOpen && (
-            <div className="mobile-nav-dropdown-menu">
-              {LIEN_KET.map(({ label, href }) => (
-                <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="mobile-nav-dropdown-item" onClick={() => setMobileLinksOpen(false)}>
-                  {label}
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
       </nav>
 
       <Analytics />
