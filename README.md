@@ -1,8 +1,10 @@
-# Alumni Network Connector
+# Alumni Network Connector (PTNK fork)
 
-A full-stack web app for alumni communities to map where members live, share updates, and stay connected. Built for the Pétrus Ký – Lê Hồng Phong alumni network, but designed to be forked and adapted for any school or community.
+A full-stack web app for alumni communities to map where members live, share updates, and stay connected. This fork is tailored for **Trường Phổ thông Năng khiếu, ĐHQG-HCM** ([ptnk.edu.vn](https://ptnk.edu.vn/)). The project remains easy to fork for any school or community.
 
-**Live example:** [lhp-network.vercel.app](https://lhp-network.vercel.app)
+**Original open-source project:** created by Jimmy Nguyen (CA1 20–23). This repo adapts branding, links, and deployment for PTNK.
+
+**Deploy your own:** connect the repo to [Vercel](https://vercel.com) and set the environment variables below. (An older upstream demo lived at `lhp-network.vercel.app`; replace OG/meta URLs in `index.html` with your production domain when you ship.)
 
 ---
 
@@ -13,15 +15,17 @@ A full-stack web app for alumni communities to map where members live, share upd
 - **Submit form** — lets alumni add themselves with name, class, graduation year, location (via OpenStreetMap autocomplete), photo, caption, and social links.
 - **Update form** — lets existing members update their location, caption, photo, or socials without re-submitting.
 
+Public visitors only see posts where **`approved = true`** (see `supabase_setup.sql`). New submissions can be held for moderation depending on your Edge Function setting (`REQUIRE_APPROVAL` in `submit-post`).
+
 ---
 
 ## Tech stack
 
 | Layer | Choice |
-|---|---|
+| --- | --- |
 | Frontend | React 19 + TypeScript + Vite |
 | Database | Supabase (Postgres + Edge Functions) |
-| Images | Cloudinary (upload + thumbnail transforms) |
+| Images | Cloudinary (server-signed upload in Edge Functions; thumbnail URLs in the browser) |
 | Globe | [react-globe.gl](https://github.com/vasturiano/react-globe.gl) + Supercluster |
 | Location search | Nominatim (OpenStreetMap) — no API key needed |
 | Deployment | Vercel |
@@ -33,58 +37,70 @@ A full-stack web app for alumni communities to map where members live, share upd
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/alumni-network-connector
-cd alumni-network-connector
+git clone https://github.com/<your-username>/ptnk-connector-opensource.git
+cd ptnk-connector-opensource
 npm install
 ```
 
 ### 2. Set up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the SQL editor, run `supabase_setup.sql` to create the `posts` table and RLS policies.
-3. Deploy the Edge Functions:
+2. In the **SQL Editor**, run `supabase_setup.sql` to create the `posts` table, `approved` column, and RLS policies (public read only for approved rows; public insert allowed).
+3. Deploy the Edge Functions.
 
-   If you have the Supabase CLI installed (`brew install supabase/tap/supabase`):
+   Prefer **`npx`** so you do not need a global install (Homebrew may require current Xcode / Command Line Tools on macOS):
+
    ```bash
-   supabase login
-   supabase link --project-ref your-project-id
-   supabase functions deploy submit-post
-   supabase functions deploy submit-update
-   supabase functions deploy sheet-sync   # optional — syncs to Google Sheets
+   npx supabase@latest login
+   npx supabase@latest link --project-ref YOUR_PROJECT_REF
+   npx supabase@latest functions deploy submit-post
+   npx supabase@latest functions deploy submit-update
+   npx supabase@latest functions deploy sheet-sync   # optional — mirrors to Google Sheets
    ```
 
-   Or without installing anything, use `npx`:
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref your-project-id
-   npx supabase functions deploy submit-post
-   npx supabase functions deploy submit-update
-   npx supabase functions deploy sheet-sync   # optional
-   ```
+   `YOUR_PROJECT_REF` is **Project ID** under **Project Settings → General** in the Supabase dashboard.
 
-   Your project ID is in the Supabase dashboard under **Project Settings → General**.
+### 3. Edge Function secrets
 
-### 3. Set up Cloudinary
+In the Supabase dashboard: **Project Settings → Edge Functions** (or **Secrets**), set at least:
 
-1. Create a free account at [cloudinary.com](https://cloudinary.com).
-2. Create an **unsigned upload preset** in Settings → Upload.
-3. Note your cloud name — update `src/cloudinary.ts` with your cloud name.
-4. Set `CLOUDINARY_CLOUD_NAME` and `CLOUDINARY_UPLOAD_PRESET` in your Supabase Edge Function secrets.
+| Secret | Purpose |
+| --- | --- |
+| `SUPABASE_URL` | Same as project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only) |
+| `UPSTASH_REDIS_REST_URL` | Rate limiting (`submit-post`) |
+| `UPSTASH_REDIS_REST_TOKEN` | Rate limiting |
+| `CLOUDINARY_CLOUD_NAME` | Signed uploads from Edge Functions |
+| `CLOUDINARY_API_KEY` | Signed uploads |
+| `CLOUDINARY_API_SECRET` | Signed uploads |
+| `DEFAULT_IMAGE_URL` | Full `https://...` URL used when the user does not upload a photo |
+| `SHEET_SYNC_SECRET` | Random string — required if you deploy `sheet-sync` |
 
-### 4. Configure environment
+See commented lines in `.env.example` for copy-paste reminders (those values are **not** read from your local `.env` by Edge Functions unless you use local Supabase tooling).
+
+### 4. Cloudinary (frontend thumbnails)
+
+The Vite app builds thumbnail URLs from:
+
+- `VITE_CLOUDINARY_CLOUD_NAME`
+- `VITE_CLOUDINARY_UPLOAD_PRESET` (typically an **unsigned** preset for URL generation in the client — your Edge uploads use API signing separately)
+
+### 5. Configure environment (local dev)
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your Supabase project URL and anon key:
+Fill in at minimum:
 
-```
-VITE_SUPABASE_URL=https://your-project.supabase.co
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_CLOUDINARY_CLOUD_NAME=your-cloud-name
+VITE_CLOUDINARY_UPLOAD_PRESET=your-preset
 ```
 
-### 5. Run locally
+### 6. Run locally
 
 ```bash
 npm run dev
@@ -95,13 +111,16 @@ npm run dev
 ## Customizing for your community
 
 | What to change | Where |
-|---|---|
-| School name and home coordinates | `src/App.tsx` (header text), `src/components/GlobeView.tsx` (`SCHOOL` constant) |
+| --- | --- |
+| School name and header | `src/App.tsx` |
+| Home school coordinates / globe center | `src/components/GlobeView.tsx` — `SCHOOL` constant |
 | Globe starting view | `GlobeView.tsx` — `globe.pointOfView(...)` in the init `useEffect` |
-| Nav links | `src/App.tsx` — `LIEN_KET` array |
-| Field labels / Vietnamese strings | `src/components/SubmitForm.tsx`, `UpdateForm.tsx` |
-| Open/close submissions | `src/App.tsx` — `SUBMISSIONS_OPEN` flag |
+| Nav links | `src/App.tsx` — `LIEN_KET` (e.g. [ptnk.edu.vn](https://ptnk.edu.vn/)) |
+| Field labels / copy | `src/components/SubmitForm.tsx`, `UpdateForm.tsx` |
+| Open/close submissions | `src/App.tsx` — `SUBMISSIONS_OPEN` |
 | Caption word limit | `src/components/SubmitForm.tsx` — `MAX_WORDS` |
+| Social / SEO preview | `index.html` — update `og:url`, `og:image`, titles when you have a live URL |
+| Default photo when no upload | Supabase secret `DEFAULT_IMAGE_URL` + `supabase/functions/submit-post/index.ts` |
 
 ---
 
@@ -112,7 +131,7 @@ src/
   App.tsx                    # Root: routing, data fetching, nav
   types.ts                   # TypeScript interfaces (Post, Filters, etc.)
   supabase.ts                # Supabase client
-  cloudinary.ts              # Image thumbnail URL helper
+  cloudinary.ts              # Image thumbnail URL helper (VITE_* env)
   social.ts                  # Social URL validation, word count
   components/
     Gallery.tsx              # Globe + filter bar + paginated card grid
@@ -126,9 +145,9 @@ src/
     SocialLinks.tsx          # Social icon link renderer
 supabase/
   functions/
-    submit-post/             # Edge function: validates + stores new submissions
-    submit-update/           # Edge function: handles profile updates
-    sheet-sync/              # Edge function: mirrors posts to Google Sheets
+    submit-post/             # Edge function: rate limit, upload, insert
+    submit-update/           # Edge function: profile updates
+    sheet-sync/              # Optional: mirror posts (e.g. Google Sheets)
 supabase_setup.sql           # Run once in Supabase SQL editor
 ```
 
@@ -136,7 +155,7 @@ supabase_setup.sql           # Run once in Supabase SQL editor
 
 ## Deployment
 
-The frontend deploys to Vercel with zero config — connect the repo and add your `.env` variables in the Vercel dashboard. Edge Functions run on Supabase's infrastructure.
+The frontend deploys to Vercel — connect the repo and add the same `VITE_*` variables from `.env` in the Vercel project settings. Edge Functions and secrets stay on Supabase.
 
 ---
 
