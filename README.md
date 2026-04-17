@@ -1,4 +1,4 @@
-# Alumni Network Connector (PTNK fork)
+# Alumni Network Connector (PTNK (Phổ Thông Năng Khiếu) fork)
 
 A full-stack web app for alumni communities to map where members live, share updates, and stay connected. This fork is tailored for **Trường Phổ thông Năng khiếu, ĐHQG-HCM** ([ptnk.edu.vn](https://ptnk.edu.vn/)). The project remains easy to fork for any school or community.
 
@@ -21,14 +21,14 @@ Public visitors only see posts where **`approved = true`** (see `supabase_setup.
 
 ## Tech stack
 
-| Layer | Choice |
-| --- | --- |
-| Frontend | React 19 + TypeScript + Vite |
-| Database | Supabase (Postgres + Edge Functions) |
-| Images | Cloudinary (server-signed upload in Edge Functions; thumbnail URLs in the browser) |
-| Globe | [react-globe.gl](https://github.com/vasturiano/react-globe.gl) + Supercluster |
-| Location search | Nominatim (OpenStreetMap) — no API key needed |
-| Deployment | Vercel |
+| Layer           | Choice                                                                             |
+| --------------- | ---------------------------------------------------------------------------------- |
+| Frontend        | React 19 + TypeScript + Vite                                                       |
+| Database        | Supabase (Postgres + Edge Functions)                                               |
+| Images          | Cloudinary (server-signed upload in Edge Functions; thumbnail URLs in the browser) |
+| Globe           | [react-globe.gl](https://github.com/vasturiano/react-globe.gl) + Supercluster      |
+| Location search | Nominatim (OpenStreetMap) — no API key needed                                      |
+| Deployment      | Vercel                                                                             |
 
 ---
 
@@ -64,17 +64,17 @@ npm install
 
 In the Supabase dashboard: **Project Settings → Edge Functions** (or **Secrets**), set at least:
 
-| Secret | Purpose |
-| --- | --- |
-| `SUPABASE_URL` | Same as project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only) |
-| `UPSTASH_REDIS_REST_URL` | Rate limiting (`submit-post`) |
-| `UPSTASH_REDIS_REST_TOKEN` | Rate limiting |
-| `CLOUDINARY_CLOUD_NAME` | Signed uploads from Edge Functions |
-| `CLOUDINARY_API_KEY` | Signed uploads |
-| `CLOUDINARY_API_SECRET` | Signed uploads |
-| `DEFAULT_IMAGE_URL` | Full `https://...` URL used when the user does not upload a photo |
-| `SHEET_SYNC_SECRET` | Random string — required if you deploy `sheet-sync` |
+| Secret                      | Purpose                                                           |
+| --------------------------- | ----------------------------------------------------------------- |
+| `SUPABASE_URL`              | Same as project URL                                               |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only)                                    |
+| `UPSTASH_REDIS_REST_URL`    | Rate limiting (`submit-post`)                                     |
+| `UPSTASH_REDIS_REST_TOKEN`  | Rate limiting                                                     |
+| `CLOUDINARY_CLOUD_NAME`     | Signed uploads from Edge Functions                                |
+| `CLOUDINARY_API_KEY`        | Signed uploads                                                    |
+| `CLOUDINARY_API_SECRET`     | Signed uploads                                                    |
+| `DEFAULT_IMAGE_URL`         | Full `https://...` URL used when the user does not upload a photo |
+| `SHEET_SYNC_SECRET`         | Random string — required if you deploy `sheet-sync`               |
 
 See commented lines in `.env.example` for copy-paste reminders (those values are **not** read from your local `.env` by Edge Functions unless you use local Supabase tooling).
 
@@ -110,17 +110,17 @@ npm run dev
 
 ## Customizing for your community
 
-| What to change | Where |
-| --- | --- |
-| School name and header | `src/App.tsx` |
-| Home school coordinates / globe center | `src/components/GlobeView.tsx` — `SCHOOL` constant |
-| Globe starting view | `GlobeView.tsx` — `globe.pointOfView(...)` in the init `useEffect` |
-| Nav links | `src/App.tsx` — `LIEN_KET` (e.g. [ptnk.edu.vn](https://ptnk.edu.vn/)) |
-| Field labels / copy | `src/components/SubmitForm.tsx`, `UpdateForm.tsx` |
-| Open/close submissions | `src/App.tsx` — `SUBMISSIONS_OPEN` |
-| Caption word limit | `src/components/SubmitForm.tsx` — `MAX_WORDS` |
-| Social / SEO preview | `index.html` — update `og:url`, `og:image`, titles when you have a live URL |
-| Default photo when no upload | Supabase secret `DEFAULT_IMAGE_URL` + `supabase/functions/submit-post/index.ts` |
+| What to change                         | Where                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------- |
+| School name and header                 | `src/App.tsx`                                                                   |
+| Home school coordinates / globe center | `src/components/GlobeView.tsx` — `SCHOOL` constant                              |
+| Globe starting view                    | `GlobeView.tsx` — `globe.pointOfView(...)` in the init `useEffect`              |
+| Nav links                              | `src/App.tsx` — `LIEN_KET` (e.g. [ptnk.edu.vn](https://ptnk.edu.vn/))           |
+| Field labels / copy                    | `src/components/SubmitForm.tsx`, `UpdateForm.tsx`                               |
+| Open/close submissions                 | `src/App.tsx` — `SUBMISSIONS_OPEN`                                              |
+| Caption word limit                     | `src/components/SubmitForm.tsx` — `MAX_WORDS`                                   |
+| Social / SEO preview                   | `index.html` — update `og:url`, `og:image`, titles when you have a live URL     |
+| Default photo when no upload           | Supabase secret `DEFAULT_IMAGE_URL` + `supabase/functions/submit-post/index.ts` |
 
 ---
 
