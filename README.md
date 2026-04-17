@@ -159,6 +159,18 @@ The frontend deploys to Vercel — connect the repo and add the same `VITE_*` va
 
 ---
 
+## Contributing
+
+Contributions are welcome! If you've adapted this for your own community and built something useful, feel free to open a PR.
+
+- **Bug fixes and improvements** — open a PR against `master`
+- **New features** — open an issue first to discuss before building
+- **Questions** — use GitHub Discussions or open an issue
+
+Please keep PRs focused — one change per PR makes review much easier.
+
+---
+
 ## License
 
 MIT
