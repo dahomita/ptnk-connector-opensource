@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+.github/
+.vscode/
 
 # Build output
 dist/
