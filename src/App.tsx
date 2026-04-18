@@ -147,7 +147,7 @@ export default function App() {
         <p>The PTNK Network · Phổ thông Năng khiếu · Est. 1996</p>
         <p>
           Built on the open-source work of Jimmy Nguyen (CA1 20-23 LHP) ·
-          Maintained by Tam Dang (CH 21-24 PTNK)
+          Maintained by Tam Dang (CH 21-24 PTNK) & Phuc Le (KC1 21-24 PTNK)
         </p>
       </footer>
 
