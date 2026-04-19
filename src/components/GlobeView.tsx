@@ -331,10 +331,10 @@ export default function GlobeView({
         width={dimensions.width}
         height={dimensions.height}
         backgroundColor="rgba(0,0,0,0)"
-        globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
+        globeImageUrl="https://unpkg.com/three-globe/example/img/earth-day.jpg"
         bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
         backgroundImageUrl="https://unpkg.com/three-globe/example/img/night-sky.png"
-        atmosphereColor="#3f87c7"
+        atmosphereColor="white"
         atmosphereAltitude={0.25}
         onGlobeClick={() => {
           onFocusPost(null);
@@ -350,7 +350,7 @@ export default function GlobeView({
         arcStartLng="startLng"
         arcEndLat="endLat"
         arcEndLng="endLng"
-        arcColor={() => ["rgba(63,135,199,0.85)", "rgba(31,93,150,0.9)"]}
+        arcColor={() => ["white", "white"]}
         arcAltitude={(d) => arcAltitude(d as Arc)}
         arcStroke={0.2}
         arcCurveResolution={58}
@@ -364,10 +364,10 @@ export default function GlobeView({
         pointColor={(p) => {
           const cp = p as ClusterPoint;
           return cp.isCluster
-            ? "#3f87c7"
+            ? "white"
             : cp.post?.id === focusedPost?.id
-              ? "#3f87c7"
-              : "#1f5d96";
+              ? "black"
+              : "white";
         }}
         pointRadius={0.1}
         pointAltitude={0.002}
@@ -387,7 +387,7 @@ export default function GlobeView({
         labelLng="lng"
         labelText={(d) => (d as CityDensity).city}
         labelSize={0.12}
-        labelColor={() => "#3f87c7"}
+        labelColor={() => "red"}
         labelDotRadius={0.15}
         labelAltitude={0.005}
         labelResolution={2}
