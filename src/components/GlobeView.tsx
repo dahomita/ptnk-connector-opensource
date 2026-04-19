@@ -387,7 +387,7 @@ export default function GlobeView({
         labelLng="lng"
         labelText={(d) => (d as CityDensity).city}
         labelSize={0.12}
-        labelColor={() => "#3f87c7"}
+        labelColor={() => "red"}
         labelDotRadius={0.15}
         labelAltitude={0.005}
         labelResolution={2}
